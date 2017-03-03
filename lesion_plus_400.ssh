@@ -1,0 +1,122 @@
+#!/bin/bash
+
+###MGH 400###
+###finds correlations of all cross-correlations between all ROIs in each subject###
+lesion_plus_400_path="/home/despoB/connectome-thalamus/Lesion_Masks/lesion_plus_400"
+lesion_plus_400_corr_path="/home/despoB/connectome-thalamus/Lesion_Masks/lesion_plus_400_corr"
+MGH_file="rfMRI_REST.nii.gz"
+MGH_path="/home/despoB/kaihwang/Rest/MGH"
+lesion_num="176"
+for subject in ${MGH_path}/*; do
+	subjectNum=${subject##*/}
+	echo "Processing ${subjectNum}"
+	if [[ -e "${lesion_plus_400_corr_path}/MGH/${lesion_num}/${subjectNum}" ]]
+	then
+		echo "Already processed ${subjectNum}"
+		continue
+	fi
+	if [[ -d "${subject}" ]] #if we are looking at a subject directory
+	then
+	    cd ${subject}/MNINonLinear;
+	    if [[ -e "${MGH_file}" ]] #if we have the appropriate file in the directory
+	    	then
+	    	mkdir ${lesion_plus_400_corr_path}/MGH/${lesion_num}/${subjectNum};
+	    	3dNetCorr -inset ${MGH_file} -in_rois ${lesion_plus_400_path}/${lesion_num}_lesion_plus_400.nii.gz -prefix ${lesion_plus_400_corr_path}/MGH/${lesion_num}/${subjectNum}/lesion_plus_400_corr;
+		fi
+	fi
+done
+
+###Writes all subject corr files (specific to all_400 <-> Lesion) into single CSV###
+lesion_num="176"
+lesion_plus_400_corr_path="/home/despoB/connectome-thalamus/Lesion_Masks/lesion_plus_400_corr"
+for subject in ${lesion_plus_400_corr_path}/MGH/${lesion_num}/*; do
+	subjectNum=${subject##*/}
+	echo "Processing ${subjectNum}"
+	if [[ -d "${subject}" ]]
+	then
+	    cd ${subject};
+		cat lesion_plus_400_corr_000.netcc | tail -n 1 | awk -v n=${subjectNum} -vOFS=$'\t' '$402 = n $402' >> ${lesion_plus_400_corr_path}/MGH/${lesion_num}_lesion_400_correlations.csv
+	fi
+done
+
+
+{ echo -n "HELLO"; cat lesion_plus_400_corr_000.netcc | tail -n 1; }
+echo "PREPENDED STRING"; cat /tmp/file; 
+
+###NKI 400###
+###finds correlations of all cross-correlations between all ROIs in each subject###
+lesion_plus_400_path="/home/despoB/connectome-thalamus/Lesion_Masks/lesion_plus_400"
+lesion_plus_400_corr_path="/home/despoB/connectome-thalamus/Lesion_Masks/lesion_plus_400_corr"
+lesion_num="176"
+NKI_file="rfMRI_REST_mx_645_ncsreg.nii.gz"
+for subject in /home/despoB/kaihwang/Rest/NKI/*; do
+	subjectNum=${subject##*/}
+	echo "Processing ${subjectNum}"
+	if [[ -d "${subject}" ]] #if we are looking at a subject directory
+	then
+	    cd ${subject}/MNINonLinear;
+	    if [[ -e "${NKI_file}" ]] #if we have the appropriate file in the directory
+	    	then
+	    	mkdir ${lesion_plus_400_corr_path}/NKI/${lesion_num}/${subjectNum};
+	    	3dNetCorr -inset ${NKI_file} -in_rois ${lesion_plus_400_path}/${lesion_num}_lesion_plus_400.nii.gz -prefix ${lesion_plus_400_corr_path}/NKI/${lesion_num}/${subjectNum}/lesion_plus_400_corr;
+		fi
+	fi
+done
+
+###Writes all subject corr files (specific to all_400 <-> Lesion) into single CSV###
+lesion_num="176"
+lesion_plus_400_corr_path="/home/despoB/connectome-thalamus/Lesion_Masks/lesion_plus_400_corr"
+for subject in ${lesion_plus_400_corr_path}/NKI/${lesion_num}/*; do
+	subjectNum=${subject##*/}
+	echo "Processing ${subjectNum}"
+	if [[ -d "${subject}" ]]
+	then
+	    cd ${subject};
+		cat lesion_plus_400_corr_000.netcc | tail -n 1 | awk -v n=${subjectNum} -vOFS=$'\t' '$402 = n $402' >> ${lesion_plus_400_corr_path}/NKI/${lesion_num}_lesion_400_correlations.csv
+	fi
+done
+
+###HCP 400###
+###finds correlations of all cross-correlations between all ROIs in each subject###
+lesion_plus_400_path="/home/despoB/connectome-thalamus/Lesion_Masks/lesion_plus_400"
+lesion_plus_400_corr_path="/home/despoB/connectome-thalamus/Lesion_Masks/lesion_plus_400_corr"
+HCP_path="/home/despoB/connectome-data"
+for subject in ${HCP_path}/*; do
+	subjectNum=${subject##*/}
+	echo "Processing ${subjectNum}"
+	if [[ -d "${subject}" ]] #if we are looking at a subject directory
+	then
+		mkdir ${lesion_plus_400_corr_path}/HCP/128/${subjectNum};
+		#Folder 1 rfMRI_REST1_LR
+	    cd ${subject}/rfMRI_REST1_LR;
+	    if [[ -e "rfMRI_REST1_LR_hp2000_clean_wbsreg.nii.gz" ]] #if we have the appropriate file in the directory
+	    	then
+	    	mkdir ${lesion_plus_400_corr_path}/HCP/128/${subjectNum}/rfMRI_REST1_LR;
+	    	3dNetCorr -inset rfMRI_REST1_LR_hp2000_clean_wbsreg.nii.gz -in_rois ${lesion_plus_400_path}/128_lesion_plus_400.nii.gz -prefix ${lesion_plus_400_corr_path}/HCP/128/${subjectNum}/rfMRI_REST1_LR/lesion_plus_400_corr;
+		fi
+		cd ..
+		#Folder 2 rfMRI_REST2_LR
+		cd ${subject}/rfMRI_REST2_LR;
+	    if [[ -e "rfMRI_REST2_LR_hp2000_clean_wbsreg.nii.gz" ]] #if we have the appropriate file in the directory
+	    	then
+	    	mkdir ${lesion_plus_400_corr_path}/HCP/128/${subjectNum}/rfMRI_REST2_LR;
+	    	3dNetCorr -inset rfMRI_REST2_LR_hp2000_clean_wbsreg.nii.gz -in_rois ${lesion_plus_400_path}/128_lesion_plus_400.nii.gz -prefix ${lesion_plus_400_corr_path}/HCP/128/${subjectNum}/rfMRI_REST2_LR/lesion_plus_400_corr;
+		fi
+		cd ..
+		#Folder 3 rfMRI_REST1_RL
+		cd ${subject}/rfMRI_REST1_RL;
+	    if [[ -e "rfMRI_REST1_RL_hp2000_clean_wbsreg.nii.gz" ]] #if we have the appropriate file in the directory
+	    	then
+	    	mkdir ${lesion_plus_400_corr_path}/HCP/128/${subjectNum}/rfMRI_REST1_RL;
+	    	3dNetCorr -inset rfMRI_REST1_RL_hp2000_clean_wbsreg.nii.gz -in_rois ${lesion_plus_400_path}/128_lesion_plus_400.nii.gz -prefix ${lesion_plus_400_corr_path}/HCP/128/${subjectNum}/rfMRI_REST1_RL/lesion_plus_400_corr;
+		fi
+		#Folder 4 rfMRI_REST2_RL
+		cd ${subject}/rfMRI_REST2_RL;
+	    if [[ -e "rfMRI_REST2_RL_hp2000_clean_wbsreg.nii.gz" ]] #if we have the appropriate file in the directory
+	    	then
+	    	mkdir ${lesion_plus_400_corr_path}/HCP/128/${subjectNum}/rfMRI_REST2_RL;
+	    	3dNetCorr -inset rfMRI_REST2_RL_hp2000_clean_wbsreg.nii.gz -in_rois ${lesion_plus_400_path}/128_lesion_plus_400.nii.gz -prefix ${lesion_plus_400_corr_path}/HCP/128/${subjectNum}/rfMRI_REST2_RL/lesion_plus_400_corr;
+		fi
+		cd ..
+	fi
+done
